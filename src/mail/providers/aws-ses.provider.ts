@@ -22,6 +22,7 @@ export class AwsSesEmailProvider implements EmailProvider {
       },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.transporter = nodemailer.createTransport({
       SES: { sesClient, SendEmailCommand },
     } as any);
