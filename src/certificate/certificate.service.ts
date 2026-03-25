@@ -69,14 +69,21 @@ export class CertificateService {
     const [firstPage] = pdfDoc.getPages();
     const { width, height } = firstPage.getSize();
 
-    const drawCenteredText = (
-      page: PDFPage,
-      text: string,
-      y: number,
-      size: number,
-      font: PDFFont,
-      color: RGB,
-    ) => {
+    const drawCenteredText = ({
+      page,
+      text,
+      y,
+      size,
+      font,
+      color,
+    }: {
+      page: PDFPage;
+      text: string;
+      y: number;
+      size: number;
+      font: PDFFont;
+      color: RGB;
+    }) => {
       const textWidth = font.widthOfTextAtSize(text, size);
       page.drawText(text, {
         x: (width - textWidth) / 2,
@@ -87,68 +94,71 @@ export class CertificateService {
       });
     };
 
+    const drawText = ({
+      page,
+      text,
+      x,
+      y,
+      size,
+      font,
+      color,
+    }: {
+      page: PDFPage;
+      text: string;
+      x: number;
+      y: number;
+      size: number;
+      font: PDFFont;
+      color: RGB;
+    }) => {
+      page.drawText(text, {
+        x,
+        y,
+        size,
+        font,
+        color,
+      });
+    };
+
     const headingColor = rgb(0.14, 0.2, 0.3);
     const bodyColor = rgb(0.1, 0.1, 0.1);
 
-    drawCenteredText(
-      firstPage,
-      'Name',
-      height * 0.58,
-      24,
-      headingFont,
-      headingColor,
-    );
-    drawCenteredText(
-      firstPage,
-      options.name,
-      height * 0.53,
-      34,
-      bodyFont,
-      bodyColor,
-    );
+    drawCenteredText({
+      page: firstPage,
+      text: options.name,
+      y: height * 0.6,
+      size: 36,
+      font: headingFont,
+      color: headingColor,
+    });
 
-    drawCenteredText(
-      firstPage,
-      'Course',
-      height * 0.46,
-      20,
-      headingFont,
-      headingColor,
-    );
-    drawCenteredText(
-      firstPage,
-      options.course,
-      height * 0.42,
-      18,
-      bodyFont,
-      bodyColor,
-    );
+    drawCenteredText({
+      page: firstPage,
+      text: options.course,
+      y: height * 0.44,
+      size: 18,
+      font: bodyFont,
+      color: bodyColor,
+    });
 
-    drawCenteredText(
-      firstPage,
-      'Date',
-      height * 0.37,
-      20,
-      headingFont,
-      headingColor,
-    );
-    drawCenteredText(
-      firstPage,
-      options.issuedAt,
-      height * 0.33,
-      18,
-      bodyFont,
-      bodyColor,
-    );
+    drawText({
+      page: firstPage,
+      text: options.issuedAt,
+      x: width * 0.146,
+      y: height * 0.17,
+      size: 14,
+      font: bodyFont,
+      color: bodyColor,
+    });
 
-    drawCenteredText(
-      firstPage,
-      `Certificate ID: ${options.certificateId}`,
-      height * 0.08,
-      12,
-      bodyFont,
-      rgb(0.35, 0.35, 0.35),
-    );
+    drawCenteredText({
+      page: firstPage,
+      text: `Certificate ID: ${options.certificateId}`,
+      y: height * 0.01,
+      size: 12,
+      font: bodyFont,
+      color: rgb(0.35, 0.35, 0.35),
+    });
 
     return Buffer.from(await pdfDoc.save());
   }
