@@ -17,4 +17,7 @@ model Certificate {
   template      String
   isSent        Boolean  @default(false)
   issuedAt      DateTime @default(now())
+
+  @@unique([email, course, template])
+  @@map("certificates")
 }
