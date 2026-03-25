@@ -30,9 +30,6 @@ export class EnvironmentVariables {
   REDIS_DATABASE_URL: string;
 
   @IsString()
-  RESEND_API_KEY: string;
-
-  @IsString()
   EMAIL_FROM: string;
 
   @IsString()
