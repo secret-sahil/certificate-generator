@@ -3,7 +3,7 @@ import { Job } from 'bullmq';
 import { MailHandler } from './mail-handler.interface';
 import { EmailProvider } from '../providers/email.provider';
 import { CertificateJobData } from '../types/certificate';
-import CertificateEmail from '../templates/certificate-email';
+import CertificateEmail from 'emails/certificate-email';
 
 export class CertificateMailHandler implements MailHandler {
   jobName = 'certificate-email';
@@ -16,7 +16,7 @@ export class CertificateMailHandler implements MailHandler {
     await this.email.send({
       to: job.data.email,
       subject: 'Your Certificate 📄',
-      react: CertificateEmail({ name: job.data.name }),
+      react: CertificateEmail({ name: job.data.name, toEmail: job.data.email }),
       attachments: [
         {
           filename: 'certificate.pdf',

@@ -13,18 +13,13 @@ export const Header = (): React.ReactElement => {
     <Tailwind>
       <Section className="pb-4">
         <Row>
-          <Column className="w-[10%]">
+          <Column align="left">
             <Img
               src={EMAIL_BRAND.logoUrl}
               width="auto"
               height="36"
               alt={EMAIL_BRAND.appName}
             />
-          </Column>
-          <Column align="right">
-            <Text className="text-xs text-gray-600 m-0">
-              Monetize your creations effortlessly
-            </Text>
           </Column>
         </Row>
       </Section>

@@ -1,4 +1,4 @@
-import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses';
+import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import { render } from '@react-email/render';
 import nodemailer from 'nodemailer';
 import { EmailAttachment, EmailProvider } from './email.provider';
@@ -14,7 +14,7 @@ export class AwsSesEmailProvider implements EmailProvider {
       awsSecretAccessKey: string;
     },
   ) {
-    const ses = new SESClient({
+    const ses = new SESv2Client({
       region: config.awsRegion,
       credentials: {
         accessKeyId: config.awsAccessKeyId,
@@ -22,9 +22,10 @@ export class AwsSesEmailProvider implements EmailProvider {
       },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.transporter = nodemailer.createTransport({
-      SES: { ses, aws: { SendRawEmailCommand } },
-    });
+      SES: { ses, aws: { SendEmailCommand } },
+    } as any);
   }
 
   async send({

@@ -60,19 +60,8 @@ export const Footer = ({
                 </Link>
               </Text>
               <Text className="text-xs text-gray-500 text-left m-0 mt-4">
-                If you wish you can change your email preferences or unsubscribe{' '}
-                <Link
-                  href={EMAIL_BRAND.unsubscribeLink}
-                  className="text-sky-600"
-                >
-                  here
-                </Link>
-                .
-              </Text>
-              <Text className="text-xs text-gray-500 text-left m-0">
-                © {new Date().getFullYear()} {EMAIL_BRAND.legalName} / Vill
-                Bulhi Nihari, Chabutra Khas, Hamirpur, Himachal Pradesh, India -
-                177007 /{' '}
+                © {new Date().getFullYear()} {EMAIL_BRAND.legalName} /{' '}
+                {EMAIL_BRAND.address} /{' '}
                 <Link
                   href={EMAIL_BRAND.privacyPolicyLink}
                   className="text-sky-600"
