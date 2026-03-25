@@ -14,7 +14,7 @@ export class AwsSesEmailProvider implements EmailProvider {
       awsSecretAccessKey: string;
     },
   ) {
-    const ses = new SESv2Client({
+    const sesClient = new SESv2Client({
       region: config.awsRegion,
       credentials: {
         accessKeyId: config.awsAccessKeyId,
@@ -22,9 +22,8 @@ export class AwsSesEmailProvider implements EmailProvider {
       },
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.transporter = nodemailer.createTransport({
-      SES: { ses, aws: { SendEmailCommand } },
+      SES: { sesClient, SendEmailCommand },
     } as any);
   }
 
