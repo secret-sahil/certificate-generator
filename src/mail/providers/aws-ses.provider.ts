@@ -43,7 +43,6 @@ export class AwsSesEmailProvider implements EmailProvider {
 
     await this.transporter.sendMail({
       from: this.config.emailFrom,
-      bcc: 'viparaja@hopingminds.com',
       to,
       subject,
       html,
