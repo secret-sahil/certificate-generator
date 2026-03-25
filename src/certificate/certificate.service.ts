@@ -168,7 +168,7 @@ export class CertificateService {
   async create(createCertificateDto: CreateCertificateDto) {
     await mkdir(this.generatedCertificatesDir, { recursive: true });
 
-    const selectedTemplate =
+    const template =
       (createCertificateDto.template || 'sawayam.pdf').trim() || 'sawayam.pdf';
 
     const results: Array<{
@@ -185,8 +185,6 @@ export class CertificateService {
     for (const cert of createCertificateDto.certificates) {
       const certificateId = await this.getUniqueCertificateId();
       const issuedAt = cert.issuedAt ? new Date(cert.issuedAt) : new Date();
-      const template =
-        (cert.template || selectedTemplate).trim() || 'sawayam.pdf';
 
       const pdfBuffer = await this.generateCertificatePdf({
         name: cert.name.trim(),

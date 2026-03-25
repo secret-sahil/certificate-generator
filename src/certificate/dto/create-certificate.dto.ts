@@ -18,9 +18,6 @@ class CertificateDto {
   @IsString()
   course: string;
 
-  @IsString()
-  template: string;
-
   @IsOptional()
   @IsDateString()
   issuedAt?: string;
