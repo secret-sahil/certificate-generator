@@ -271,13 +271,10 @@ export class CertificateService {
     for (const cert of createCertificateDto.certificates) {
       const certificateId = await this.getUniqueCertificateId();
       const issuedAt = cert.issuedAt ? new Date(cert.issuedAt) : new Date();
-      const normalizedEmail = cert.email.trim().toLowerCase();
-      const normalizedName = cert.name.trim();
-      const normalizedCourse = cert.course.trim();
 
       const pdfBuffer = await this.generateCertificatePdf({
-        name: normalizedName,
-        course: normalizedCourse,
+        name: cert.email,
+        course: cert.course,
         issuedAt: issuedAt.toISOString().slice(0, 10),
         certificateId,
         templateFile: template,
@@ -294,9 +291,9 @@ export class CertificateService {
         await this.prisma.certificate.create({
           data: {
             certificateId,
-            email: normalizedEmail,
-            name: normalizedName,
-            course: normalizedCourse,
+            email: cert.email,
+            name: cert.name,
+            course: cert.course,
             template,
             issuedAt,
           },
@@ -310,9 +307,9 @@ export class CertificateService {
           }
 
           skipped.push({
-            email: normalizedEmail,
-            name: normalizedName,
-            course: normalizedCourse,
+            email: cert.email,
+            name: cert.name,
+            course: cert.course,
             template,
             reason:
               'Skipped duplicate (email + course + template already exists)',
@@ -325,16 +322,16 @@ export class CertificateService {
 
       await this.mailService.sendCertificateEmail({
         certificateId,
-        name: normalizedName,
-        email: normalizedEmail,
+        name: cert.name,
+        email: cert.email,
         certificatePdfPath,
       });
 
       results.push({
         certificateId,
-        email: normalizedEmail,
-        name: normalizedName,
-        course: normalizedCourse,
+        email: cert.email,
+        name: cert.name,
+        course: cert.course,
         template,
         issuedAt: issuedAt.toISOString(),
         certificatePdfPath,

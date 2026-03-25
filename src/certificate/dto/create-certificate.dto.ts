@@ -7,15 +7,22 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Capitalise, Lowercase, Trim } from 'src/common/decorators';
 
 class CertificateDto {
   @IsEmail()
+  @Trim()
+  @Lowercase()
   email: string;
 
   @IsString()
+  @Trim()
+  @Capitalise()
   name: string;
 
   @IsString()
+  @Trim()
+  @Capitalise()
   course: string;
 
   @IsOptional()
