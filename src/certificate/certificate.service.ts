@@ -276,6 +276,7 @@ export class CertificateService {
       });
 
       await this.mailService.sendCertificateEmail({
+        certificateId,
         name: cert.name.trim(),
         email: cert.email.trim().toLowerCase(),
         certificatePdfPath,
