@@ -34,6 +34,15 @@ export class EnvironmentVariables {
 
   @IsString()
   EMAIL_FROM: string;
+
+  @IsString()
+  AWS_SES_REGION: string;
+
+  @IsString()
+  AWS_ACCESS_KEY: string;
+
+  @IsString()
+  AWS_SECRET_ACCESS_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {

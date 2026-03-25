@@ -2,11 +2,12 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { MailJobRouter } from './mail-job.router';
 import { WelcomeMailHandler } from './handlers/welcome.handler';
-import { ResendEmailProvider } from './providers/resend.provider';
+import { AwsSesEmailProvider } from './providers/aws-ses.provider';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from 'src/env.validation';
 import { ResetPasswordMailHandler } from './handlers/reset-password.handler';
 import { EmailVerificationMailHandler } from './handlers/email-verification.handler';
+import { CertificateMailHandler } from './handlers/certificate.handler';
 
 @Processor('mail', { concurrency: 5 })
 export class MailProcessor extends WorkerHost {
@@ -17,15 +18,18 @@ export class MailProcessor extends WorkerHost {
   ) {
     super();
 
-    const emailProvider = new ResendEmailProvider({
+    const emailProvider = new AwsSesEmailProvider({
       emailFrom: config.get<string>('EMAIL_FROM'),
-      resendApiKey: config.get<string>('RESEND_API_KEY'),
+      awsRegion: config.get<string>('AWS_SES_REGION'),
+      awsAccessKeyId: config.get<string>('AWS_ACCESS_KEY_ID'),
+      awsSecretAccessKey: config.get<string>('AWS_SECRET_ACCESS_KEY'),
     });
 
     this.router = new MailJobRouter([
       new WelcomeMailHandler(emailProvider),
       new ResetPasswordMailHandler(emailProvider),
       new EmailVerificationMailHandler(emailProvider),
+      new CertificateMailHandler(emailProvider),
     ]);
   }
 
