@@ -29,8 +29,8 @@ export * from "./enums.js"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more UrlShorteners
- * const urlShorteners = await prisma.urlShortener.findMany()
+ * // Fetch zero or more Certificates
+ * const certificates = await prisma.certificate.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -40,7 +40,7 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
- * Model UrlShortener
+ * Model Certificate
  * 
  */
-export type UrlShortener = Prisma.UrlShortenerModel
+export type Certificate = Prisma.CertificateModel

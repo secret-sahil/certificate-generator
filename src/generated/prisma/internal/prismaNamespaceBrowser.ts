@@ -51,7 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  UrlShortener: 'UrlShortener'
+  Certificate: 'Certificate'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -70,15 +70,17 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const UrlShortenerScalarFieldEnum = {
+export const CertificateScalarFieldEnum = {
   id: 'id',
-  originalUrl: 'originalUrl',
-  shortCode: 'shortCode',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  email: 'email',
+  name: 'name',
+  course: 'course',
+  template: 'template',
+  isSent: 'isSent',
+  issuedAt: 'issuedAt'
 } as const
 
-export type UrlShortenerScalarFieldEnum = (typeof UrlShortenerScalarFieldEnum)[keyof typeof UrlShortenerScalarFieldEnum]
+export type CertificateScalarFieldEnum = (typeof CertificateScalarFieldEnum)[keyof typeof CertificateScalarFieldEnum]
 
 
 export const SortOrder = {

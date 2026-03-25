@@ -384,7 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  UrlShortener: 'UrlShortener'
+  Certificate: 'Certificate'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -400,81 +400,81 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "urlShortener"
+    modelProps: "certificate"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
-    UrlShortener: {
-      payload: Prisma.$UrlShortenerPayload<ExtArgs>
-      fields: Prisma.UrlShortenerFieldRefs
+    Certificate: {
+      payload: Prisma.$CertificatePayload<ExtArgs>
+      fields: Prisma.CertificateFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.UrlShortenerFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload> | null
+          args: Prisma.CertificateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.UrlShortenerFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload>
+          args: Prisma.CertificateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload>
         }
         findFirst: {
-          args: Prisma.UrlShortenerFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload> | null
+          args: Prisma.CertificateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.UrlShortenerFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload>
+          args: Prisma.CertificateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload>
         }
         findMany: {
-          args: Prisma.UrlShortenerFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload>[]
+          args: Prisma.CertificateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload>[]
         }
         create: {
-          args: Prisma.UrlShortenerCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload>
+          args: Prisma.CertificateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload>
         }
         createMany: {
-          args: Prisma.UrlShortenerCreateManyArgs<ExtArgs>
+          args: Prisma.CertificateCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.UrlShortenerCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload>[]
+          args: Prisma.CertificateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload>[]
         }
         delete: {
-          args: Prisma.UrlShortenerDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload>
+          args: Prisma.CertificateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload>
         }
         update: {
-          args: Prisma.UrlShortenerUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload>
+          args: Prisma.CertificateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload>
         }
         deleteMany: {
-          args: Prisma.UrlShortenerDeleteManyArgs<ExtArgs>
+          args: Prisma.CertificateDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.UrlShortenerUpdateManyArgs<ExtArgs>
+          args: Prisma.CertificateUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.UrlShortenerUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload>[]
+          args: Prisma.CertificateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload>[]
         }
         upsert: {
-          args: Prisma.UrlShortenerUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UrlShortenerPayload>
+          args: Prisma.CertificateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CertificatePayload>
         }
         aggregate: {
-          args: Prisma.UrlShortenerAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateUrlShortener>
+          args: Prisma.CertificateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCertificate>
         }
         groupBy: {
-          args: Prisma.UrlShortenerGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.UrlShortenerGroupByOutputType>[]
+          args: Prisma.CertificateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CertificateGroupByOutputType>[]
         }
         count: {
-          args: Prisma.UrlShortenerCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.UrlShortenerCountAggregateOutputType> | number
+          args: Prisma.CertificateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CertificateCountAggregateOutputType> | number
         }
       }
     }
@@ -517,15 +517,17 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const UrlShortenerScalarFieldEnum = {
+export const CertificateScalarFieldEnum = {
   id: 'id',
-  originalUrl: 'originalUrl',
-  shortCode: 'shortCode',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  email: 'email',
+  name: 'name',
+  course: 'course',
+  template: 'template',
+  isSent: 'isSent',
+  issuedAt: 'issuedAt'
 } as const
 
-export type UrlShortenerScalarFieldEnum = (typeof UrlShortenerScalarFieldEnum)[keyof typeof UrlShortenerScalarFieldEnum]
+export type CertificateScalarFieldEnum = (typeof CertificateScalarFieldEnum)[keyof typeof CertificateScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -561,6 +563,13 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
  * Reference to a field of type 'String[]'
  */
 export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -686,7 +695,7 @@ export type PrismaClientOptions = ({
   comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
-  urlShortener?: Prisma.UrlShortenerOmit
+  certificate?: Prisma.CertificateOmit
 }
 
 /* Types for Logging */

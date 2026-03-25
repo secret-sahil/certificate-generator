@@ -5,6 +5,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvironmentVariables, validate } from './env.validation';
 import { BullModule } from '@nestjs/bullmq';
+import { CertificateModule } from './certificate/certificate.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { BullModule } from '@nestjs/bullmq';
       }),
     }),
     PrismaModule,
+    CertificateModule,
   ],
   controllers: [AppController],
   providers: [AppService],

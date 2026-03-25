@@ -18,7 +18,7 @@ export { Prisma }
 export * as $Enums from './enums.js'
 export * from './enums.js';
 /**
- * Model UrlShortener
+ * Model Certificate
  * 
  */
-export type UrlShortener = Prisma.UrlShortenerModel
+export type Certificate = Prisma.CertificateModel

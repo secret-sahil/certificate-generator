@@ -8,5 +8,5 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/UrlShortener.js'
+export type * from './models/Certificate.js'
 export type * from './commonInputTypes.js'
