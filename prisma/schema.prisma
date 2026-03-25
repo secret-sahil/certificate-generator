@@ -9,11 +9,12 @@ datasource db {
 }
 
 model Certificate {
-  id       String   @id @default(uuid())
-  email    String
-  name     String
-  course   String
-  template String
-  isSent   Boolean  @default(false)
-  issuedAt DateTime @default(now())
+  id            String   @id @default(uuid())
+  certificateId String   @unique
+  email         String
+  name          String
+  course        String
+  template      String
+  isSent        Boolean  @default(false)
+  issuedAt      DateTime @default(now())
 }

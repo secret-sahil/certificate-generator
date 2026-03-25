@@ -519,6 +519,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const CertificateScalarFieldEnum = {
   id: 'id',
+  certificateId: 'certificateId',
   email: 'email',
   name: 'name',
   course: 'course',
