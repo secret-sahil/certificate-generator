@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import {
   PDFDocument,
@@ -39,6 +39,21 @@ export class CertificateService {
 
   private getVerificationUrl(certificateId: string) {
     return `https://certify.hopingminds.com/certificate/${certificateId}`;
+  }
+
+  private isUniqueConstraintError(error: unknown): error is {
+    code: string;
+    meta?: { target?: unknown };
+  } {
+    if (!error || typeof error !== 'object') {
+      return false;
+    }
+
+    return (
+      'code' in error &&
+      typeof (error as { code?: unknown }).code === 'string' &&
+      (error as { code: string }).code === 'P2002'
+    );
   }
 
   private async generateCertificatePdf(options: {
@@ -245,13 +260,24 @@ export class CertificateService {
       isEmailQueued: boolean;
     }> = [];
 
+    const skipped: Array<{
+      email: string;
+      name: string;
+      course: string;
+      template: string;
+      reason: string;
+    }> = [];
+
     for (const cert of createCertificateDto.certificates) {
       const certificateId = await this.getUniqueCertificateId();
       const issuedAt = cert.issuedAt ? new Date(cert.issuedAt) : new Date();
+      const normalizedEmail = cert.email.trim().toLowerCase();
+      const normalizedName = cert.name.trim();
+      const normalizedCourse = cert.course.trim();
 
       const pdfBuffer = await this.generateCertificatePdf({
-        name: cert.name.trim(),
-        course: cert.course.trim(),
+        name: normalizedName,
+        course: normalizedCourse,
         issuedAt: issuedAt.toISOString().slice(0, 10),
         certificateId,
         templateFile: template,
@@ -264,29 +290,51 @@ export class CertificateService {
       );
       await writeFile(certificatePdfPath, pdfBuffer);
 
-      await this.prisma.certificate.create({
-        data: {
-          certificateId,
-          email: cert.email.trim().toLowerCase(),
-          name: cert.name.trim(),
-          course: cert.course.trim(),
-          template,
-          issuedAt,
-        },
-      });
+      try {
+        await this.prisma.certificate.create({
+          data: {
+            certificateId,
+            email: normalizedEmail,
+            name: normalizedName,
+            course: normalizedCourse,
+            template,
+            issuedAt,
+          },
+        });
+      } catch (error) {
+        if (this.isUniqueConstraintError(error)) {
+          try {
+            await unlink(certificatePdfPath);
+          } catch {
+            // Ignore cleanup errors for skipped duplicates.
+          }
+
+          skipped.push({
+            email: normalizedEmail,
+            name: normalizedName,
+            course: normalizedCourse,
+            template,
+            reason:
+              'Skipped duplicate (email + course + template already exists)',
+          });
+          continue;
+        }
+
+        throw error;
+      }
 
       await this.mailService.sendCertificateEmail({
         certificateId,
-        name: cert.name.trim(),
-        email: cert.email.trim().toLowerCase(),
+        name: normalizedName,
+        email: normalizedEmail,
         certificatePdfPath,
       });
 
       results.push({
         certificateId,
-        email: cert.email.trim().toLowerCase(),
-        name: cert.name.trim(),
-        course: cert.course.trim(),
+        email: normalizedEmail,
+        name: normalizedName,
+        course: normalizedCourse,
         template,
         issuedAt: issuedAt.toISOString(),
         certificatePdfPath,
@@ -297,6 +345,8 @@ export class CertificateService {
     return {
       count: results.length,
       certificates: results,
+      skippedCount: skipped.length,
+      skipped,
     };
   }
 
