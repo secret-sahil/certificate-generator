@@ -305,10 +305,6 @@ export class CertificateService {
     });
   }
 
-  findOne(id: string) {
-    return this.prisma.certificate.findUnique({ where: { id } });
-  }
-
   update(id: string, updateCertificateDto: UpdateCertificateDto) {
     const data = {
       ...updateCertificateDto,

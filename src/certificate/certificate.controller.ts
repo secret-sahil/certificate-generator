@@ -27,7 +27,7 @@ export class CertificateController {
     return this.certificateService.findAll();
   }
 
-  @Get('pdf/:certificateId')
+  @Get(':certificateId')
   async getCertificatePdf(
     @Param('certificateId') certificateId: string,
     @Res() res: Response,
@@ -41,11 +41,6 @@ export class CertificateController {
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 
     return res.send(pdfBuffer);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.certificateService.findOne(id);
   }
 
   @Patch(':id')
