@@ -253,10 +253,10 @@ export class CertificateService {
     );
     const qrImage = await pdfDoc.embedPng(qrCodeImageBytes);
 
-    const qrSize = 72;
+    const qrSize = 40;
     firstPage.drawImage(qrImage, {
       x: (width - qrSize - 24) * 0.045,
-      y: (height - qrSize - 24) * 0.98,
+      y: qrSize * 0.98,
       width: qrSize,
       height: qrSize,
     });
