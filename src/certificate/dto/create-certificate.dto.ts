@@ -39,8 +39,14 @@ export class CreateCertificateDto {
   @IsString()
   template: string;
 
+  @IsString()
+  password: string;
+
   @IsBoolean()
   sendEmail: boolean;
+
+  @IsBoolean()
+  saveToDatabase: boolean;
 
   @IsBoolean()
   sendOnlyEmail: boolean;

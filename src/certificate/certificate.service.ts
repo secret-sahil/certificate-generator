@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -297,6 +301,10 @@ export class CertificateService {
   }
 
   async create(createCertificateDto: CreateCertificateDto) {
+    if (createCertificateDto.password !== 'Hoping@Minds#2024') {
+      throw new UnauthorizedException('Invalid password');
+    }
+
     await mkdir(this.generatedCertificatesDir, { recursive: true });
 
     const template =
@@ -342,17 +350,19 @@ export class CertificateService {
         await writeFile(certificatePdfPath, pdfBuffer);
       }
       try {
-        // await this.prisma.certificate.create({
-        //   data: {
-        //     certificateId,
-        //     email: cert.email,
-        //     name: cert.name,
-        //     course: cert.course,
-        //  grades: cert.grades,
-        //     template,
-        //     issuedAt,
-        //   },
-        // });
+        if (createCertificateDto.saveToDatabase) {
+          await this.prisma.certificate.create({
+            data: {
+              certificateId,
+              email: cert.email,
+              name: cert.name,
+              course: cert.course,
+              grades: cert.grades,
+              template,
+              issuedAt,
+            },
+          });
+        }
       } catch (error) {
         if (this.isUniqueConstraintError(error)) {
           try {
@@ -375,15 +385,17 @@ export class CertificateService {
         throw error;
       }
 
-      await this.mailService.sendCertificateEmail({
-        certificateId,
-        name: cert.name,
-        email: cert.email,
-        certificateDownloadUrl: this.getVerificationUrl(certificateId),
-        certificatePdfPath: createCertificateDto.sendOnlyEmail
-          ? null
-          : certificatePdfPath,
-      });
+      if (createCertificateDto.sendEmail) {
+        await this.mailService.sendCertificateEmail({
+          certificateId,
+          name: cert.name,
+          email: cert.email,
+          certificateDownloadUrl: this.getVerificationUrl(certificateId),
+          certificatePdfPath: createCertificateDto.sendOnlyEmail
+            ? null
+            : certificatePdfPath,
+        });
+      }
 
       results.push({
         certificateId,
