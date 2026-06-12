@@ -9,6 +9,50 @@ import { Queue } from 'bullmq';
 import * as express from 'express';
 import { resolve } from 'node:path';
 
+function requireQueuePassword(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) {
+  const authHeader = req.headers.authorization;
+  const expectedPassword = 'Admin@!123';
+  //  process.env.QUEUES_PASSWORD
+  if (!authHeader || !expectedPassword) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Queues"');
+    res.status(401).send('Authentication required');
+    return;
+  }
+
+  const [scheme, encodedCredentials] = authHeader.split(' ');
+
+  if (scheme !== 'Basic' || !encodedCredentials) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Queues"');
+    res.status(401).send('Authentication required');
+    return;
+  }
+
+  const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString(
+    'utf8',
+  );
+  const separatorIndex = decodedCredentials.indexOf(':');
+
+  if (separatorIndex < 0) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Queues"');
+    res.status(401).send('Authentication required');
+    return;
+  }
+
+  const password = decodedCredentials.slice(separatorIndex + 1);
+
+  if (password !== expectedPassword) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Queues"');
+    res.status(401).send('Authentication required');
+    return;
+  }
+
+  next();
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -26,6 +70,7 @@ async function bootstrap() {
     serverAdapter,
   });
 
+  app.use('/admin/queues', requireQueuePassword);
   app.use('/admin/queues', serverAdapter.getRouter());
   app.useGlobalPipes(
     new ValidationPipe({

@@ -31,6 +31,8 @@
 $ pnpm install
 ```
 
+Set `QUEUES_PASSWORD` in your environment to protect the Bull Board queue UI at `/admin/queues`.
+
 ## Compile and run the project
 
 ```bash
