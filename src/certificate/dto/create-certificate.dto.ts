@@ -11,7 +11,7 @@ import {
 import { Type } from 'class-transformer';
 import { Capitalise, Lowercase, Trim } from 'src/common/decorators';
 
-class CertificateDto {
+export class CertificateDto {
   @IsNotEmpty({ message: 'Email is required' })
   @IsEmail(
     {},

@@ -15,7 +15,10 @@ import {
 } from 'pdf-lib/cjs';
 import fontkit from '@pdf-lib/fontkit';
 import QRCode from 'qrcode';
-import { CreateCertificateDto } from './dto/create-certificate.dto';
+import {
+  CertificateDto,
+  CreateCertificateDto,
+} from './dto/create-certificate.dto';
 import { UpdateCertificateDto } from './dto/update-certificate.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailService } from 'src/mail/mail.service';
@@ -388,103 +391,50 @@ export class CertificateService {
     const template =
       (createCertificateDto.template || 'sawayam.pdf').trim() || 'sawayam.pdf';
 
-    const results: Array<{
-      certificateId: string;
-      email: string;
-      name: string;
-      course: string;
-      template: string;
-      issuedAt: string;
-      certificatePdfPath: string;
-      isEmailQueued: boolean;
-    }> = [];
+    const CONCURRENCY_LIMIT = 10; // Tune based on CPU/DB pool size
 
-    const skipped: Array<{
-      email: string;
-      name: string;
-      course: string;
-      template: string;
-      reason: string;
-    }> = [];
+    const results: Array<CertificateDto> = [];
+    const skipped: Array<CertificateDto> = [];
 
-    for (const cert of createCertificateDto.certificates) {
-      const certificateId = await this.getUniqueCertificateId();
-      const issuedAt = cert.issuedAt ? new Date(cert.issuedAt) : new Date();
-      const certificateFileName = `${certificateId}.pdf`;
-      const certificatePdfPath = join(
-        this.generatedCertificatesDir,
-        certificateFileName,
+    // Pre-generate all unique IDs in one batch to avoid sequential async calls
+    const certificateIds = await Promise.all(
+      createCertificateDto.certificates.map(() =>
+        this.getUniqueCertificateId(),
+      ),
+    );
+
+    // Process in batches to avoid overwhelming DB connection pool
+    for (
+      let i = 0;
+      i < createCertificateDto.certificates.length;
+      i += CONCURRENCY_LIMIT
+    ) {
+      const batch = createCertificateDto.certificates.slice(
+        i,
+        i + CONCURRENCY_LIMIT,
+      );
+      const batchIds = certificateIds.slice(i, i + CONCURRENCY_LIMIT);
+
+      const batchResults = await Promise.allSettled(
+        batch.map((cert, idx) =>
+          this.processSingleCertificate({
+            cert,
+            certificateId: batchIds[idx],
+            template,
+            createCertificateDto,
+          }),
+        ),
       );
 
-      if (!createCertificateDto.sendOnlyEmail) {
-        const pdfBuffer = await this.generateCertificatePdf({
-          name: cert.name,
-          course: cert.course,
-          issuedAt: issuedAt.toISOString().slice(0, 10),
-          certificateId,
-          templateFile: template,
-          grades: cert.grades,
-        });
-        await writeFile(certificatePdfPath, pdfBuffer);
-      }
-      try {
-        if (createCertificateDto.saveToDatabase) {
-          await this.prisma.certificate.create({
-            data: {
-              certificateId,
-              email: cert.email,
-              name: cert.name,
-              course: cert.course,
-              grades: cert.grades,
-              template,
-              issuedAt,
-            },
-          });
+      for (const result of batchResults) {
+        if (result.status === 'fulfilled') {
+          const { type, data } = result.value;
+          if (type === 'skipped') skipped.push(data);
+          else results.push(data);
+        } else {
+          throw result.reason; // Re-throw unexpected errors
         }
-      } catch (error) {
-        if (this.isUniqueConstraintError(error)) {
-          try {
-            await unlink(certificatePdfPath);
-          } catch {
-            // Ignore cleanup errors for skipped duplicates.
-          }
-
-          skipped.push({
-            email: cert.email,
-            name: cert.name,
-            course: cert.course,
-            template,
-            reason:
-              'Skipped duplicate (email + course + template already exists)',
-          });
-          continue;
-        }
-
-        throw error;
       }
-
-      if (createCertificateDto.sendEmail) {
-        void this.mailService.sendCertificateEmail({
-          certificateId,
-          name: cert.name,
-          email: cert.email,
-          certificateDownloadUrl: this.getVerificationUrl(certificateId),
-          certificatePdfPath: createCertificateDto.sendOnlyEmail
-            ? null
-            : certificatePdfPath,
-        });
-      }
-
-      results.push({
-        certificateId,
-        email: cert.email,
-        name: cert.name,
-        course: cert.course,
-        template,
-        issuedAt: issuedAt.toISOString(),
-        certificatePdfPath,
-        isEmailQueued: true,
-      });
     }
 
     return {
@@ -492,6 +442,116 @@ export class CertificateService {
       certificates: results,
       skippedCount: skipped.length,
       skipped,
+    };
+  }
+
+  // Extracted helper — processes one cert fully in parallel
+  private async processSingleCertificate({
+    cert,
+    certificateId,
+    template,
+    createCertificateDto,
+  }: {
+    cert: CertificateDto;
+    certificateId: string;
+    template: string;
+    createCertificateDto: CreateCertificateDto;
+  }): Promise<{
+    type: 'success' | 'skipped';
+    data: CertificateDto & {
+      template: string;
+      reason?: string;
+      certificatePdfPath?: string;
+      certificateId?: string;
+      isEmailQueued?: boolean;
+    };
+  }> {
+    const issuedAt = cert.issuedAt ? new Date(cert.issuedAt) : new Date();
+    const certificatePdfPath = join(
+      this.generatedCertificatesDir,
+      `${certificateId}.pdf`,
+    );
+
+    // Run PDF generation and DB insert concurrently where possible
+    const tasks: Promise<any>[] = [];
+
+    if (!createCertificateDto.sendOnlyEmail) {
+      tasks.push(
+        this.generateCertificatePdf({
+          name: cert.name,
+          course: cert.course,
+          issuedAt: issuedAt.toISOString().slice(0, 10),
+          certificateId,
+          templateFile: template,
+          grades: cert.grades,
+        }).then((pdfBuffer) => writeFile(certificatePdfPath, pdfBuffer)),
+      );
+    }
+
+    if (createCertificateDto.saveToDatabase) {
+      tasks.push(
+        this.prisma.certificate.create({
+          data: {
+            certificateId,
+            email: cert.email,
+            name: cert.name,
+            course: cert.course,
+            grades: cert.grades,
+            template,
+            issuedAt,
+          },
+        }),
+      );
+    }
+
+    try {
+      await Promise.all(tasks);
+    } catch (error) {
+      if (this.isUniqueConstraintError(error)) {
+        // Clean up the written PDF file if DB insert was a duplicate
+        if (!createCertificateDto.sendOnlyEmail) {
+          await unlink(certificatePdfPath).catch(() => {});
+        }
+        return {
+          type: 'skipped',
+          data: {
+            email: cert.email,
+            name: cert.name,
+            course: cert.course,
+            template,
+            reason:
+              'Skipped duplicate (email + course + template already exists)',
+          },
+        };
+      }
+      throw error;
+    }
+
+    if (createCertificateDto.sendEmail) {
+      // Fire-and-forget — queue handles the rest
+      void this.mailService.sendCertificateEmail({
+        certificateId,
+        name: cert.name,
+        email: cert.email,
+        certificateDownloadUrl: this.getVerificationUrl(certificateId),
+        certificatePdfPath: createCertificateDto.sendOnlyEmail
+          ? null
+          : certificatePdfPath,
+      });
+    }
+
+    return {
+      type: 'success',
+      data: {
+        certificateId,
+        email: cert.email,
+        name: cert.name,
+        course: cert.course,
+        template,
+        issuedAt: issuedAt.toISOString(),
+        certificatePdfPath,
+        isEmailQueued: createCertificateDto.sendEmail,
+      },
     };
   }
 
