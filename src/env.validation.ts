@@ -43,9 +43,6 @@ export class EnvironmentVariables {
 
   @IsString()
   CERTIFICATE_PASSWORD: string;
-
-  @IsString()
-  QUEUES_PASSWORD: string;
 }
 
 export function validate(config: Record<string, unknown>) {
