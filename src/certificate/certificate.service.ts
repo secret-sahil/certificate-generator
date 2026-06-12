@@ -464,7 +464,7 @@ export class CertificateService {
       }
 
       if (createCertificateDto.sendEmail) {
-        await this.mailService.sendCertificateEmail({
+        void this.mailService.sendCertificateEmail({
           certificateId,
           name: cert.name,
           email: cert.email,
