@@ -269,18 +269,6 @@ export class CertificateService {
         color: bodyColor,
       });
 
-      if (options.grades) {
-        drawText({
-          page: firstPage,
-          text: options.grades,
-          x: width * 0.285,
-          y: height * 0.17,
-          size: 14,
-          font: bodyFont,
-          color: bodyColor,
-        });
-      }
-
       drawCenteredText({
         page: firstPage,
         text: `Certificate ID: ${options.certificateId}`,
