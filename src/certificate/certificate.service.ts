@@ -240,6 +240,55 @@ export class CertificateService {
         font: bodyFont,
         color: rgb(0.35, 0.35, 0.35),
       });
+    } else if (options.templateFile.toLocaleLowerCase().includes('kln')) {
+      drawCenteredText({
+        page: firstPage,
+        text: options.name,
+        y: height * 0.635,
+        size: 38,
+        font: headingFont,
+        color: bodyColor,
+      });
+
+      drawCenteredText({
+        page: firstPage,
+        text: options.course,
+        y: height * 0.422,
+        size: 18,
+        font: bodyFont,
+        color: bodyColor,
+      });
+
+      drawText({
+        page: firstPage,
+        text: options.issuedAt,
+        x: width * 0.146,
+        y: height * 0.17,
+        size: 14,
+        font: bodyFont,
+        color: bodyColor,
+      });
+
+      if (options.grades) {
+        drawText({
+          page: firstPage,
+          text: options.grades,
+          x: width * 0.285,
+          y: height * 0.17,
+          size: 14,
+          font: bodyFont,
+          color: bodyColor,
+        });
+      }
+
+      drawCenteredText({
+        page: firstPage,
+        text: `Certificate ID: ${options.certificateId}`,
+        y: height * 0.01,
+        size: 12,
+        font: bodyFont,
+        color: rgb(0.35, 0.35, 0.35),
+      });
     }
 
     const qrCodeDataUrl = await QRCode.toDataURL(
